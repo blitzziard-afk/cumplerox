@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Happy Birthday 🎉❤️</title>
+<link href="https://fonts.googleapis.com/css2?family=Sacramento&family=Caveat:wght@500;700&family=Quicksand:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#ff3d8b;--dark:#b30f5a;--cw:clamp(150px,34vw,270px);}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#000;overflow:hidden;font-family:'Caveat',cursive;color:#fff;user-select:none}
+canvas#fx{position:fixed;inset:0;z-index:50;pointer-events:none}
+
+/* ---------- INTRO: REGALO ---------- */
+#intro{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .8s}
+#intro.out{opacity:0;pointer-events:none}
+#giftWrap{position:relative;width:200px;height:260px;perspective:800px}
+#giftWrap>*{position:absolute;left:50%;top:50%}
+.cube{transform-style:preserve-3d;width:var(--w);height:var(--h);margin-left:calc(var(--w)/-2);margin-top:calc(var(--h)/-2)}
+.cube i{position:absolute;left:0;top:0;width:var(--w);height:var(--h);overflow:hidden}
+.cube .f{transform:translateZ(calc(var(--w)/2));background:#d81b60}
+.cube .b{transform:rotateY(180deg) translateZ(calc(var(--w)/2));background:#d81b60}
+.cube .r{transform:rotateY(90deg) translateZ(calc(var(--w)/2));background:#e63a78}
+.cube .l{transform:rotateY(-90deg) translateZ(calc(var(--w)/2));background:#c2185b}
+.cube .t,.cube .d{height:var(--w);top:calc((var(--h) - var(--w))/2)}
+.cube .t{transform:rotateX(90deg) translateZ(calc(var(--h)/2));background:#f06292}
+.cube .d{transform:rotateX(-90deg) translateZ(calc(var(--h)/2));background:linear-gradient(#f8bbd0,#e91e63)}
+.cube .f::before,.cube .b::before,.cube .r::before,.cube .l::before{content:"";position:absolute;left:38%;width:24%;top:0;bottom:0;background:#f8a5c2}
+.cube .t::before{content:"";position:absolute;left:38%;width:24%;top:0;bottom:0;background:#f8bbd0}
+.cube .t::after{content:"";position:absolute;top:38%;height:24%;left:0;right:0;background:#f8bbd0}
+.cube.open .t{display:none}
+.spin{transform:rotateX(-28deg) rotateY(40deg);animation:wob 3s ease-in-out infinite alternate}
+@keyframes wob{to{transform:rotateX(-28deg) rotateY(52deg)}}
+#lidBox{transform:translate(0,-42px);transition:transform 1s cubic-bezier(.2,.9,.3,1)}
+#baseBox{transform:translate(0,36px)}
+#giftWrap.opened #lidBox{transform:translate(0,-86px)}
+#giftWrap.opened #baseBox{transform:translate(0,44px)}
+#count{top:6px!important;transform:translateX(-50%);font:700 2rem 'Quicksand',sans-serif;color:#ffe600;text-shadow:0 0 8px #ffe600,0 0 18px #ff9d00;transition:transform 1s,opacity .5s}
+#count.pop{animation:pop .5s}
+@keyframes pop{0%{transform:translateX(-50%) scale(1.8);opacity:0}100%{transform:translateX(-50%) scale(1);opacity:1}}
+#giftWrap.opened #count{transform:translateX(-50%) translateY(-44px)}
+#giftWrap.opened #count.hide{opacity:0}
+#heartPop{top:44%!important;font-size:1.6rem;opacity:0;transform:translate(-50%,0);color:#ff2d55}
+#giftWrap.opened #heartPop{animation:hp 1.2s ease-out .4s forwards}
+@keyframes hp{0%{opacity:0;transform:translate(-50%,10px) scale(.3)}40%{opacity:1;transform:translate(-50%,-20px) scale(1.2)}100%{opacity:1;transform:translate(-50%,-14px) scale(1)}}
+#title{font-family:'Sacramento',cursive;font-size:clamp(1.9rem,8vw,2.8rem);color:#ff5fb0;text-align:center;letter-spacing:1px;
+ text-shadow:0 0 4px #ff2d95,0 0 12px #ff2d95,0 0 26px #ff007f;opacity:0;margin-top:6px;transition:opacity 1.2s}
+#title.show{opacity:1;animation:neon 2.4s ease-in-out infinite alternate}
+@keyframes neon{50%{text-shadow:0 0 2px #ff2d95,0 0 8px #ff2d95,0 0 16px #ff007f}}
+
+/* ---------- CARRUSEL 3D ---------- */
+#gallery{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 1s;touch-action:pan-y}
+#gallery.on{opacity:1;pointer-events:auto}
+#hint{font-size:1.15rem;color:#fff;margin-bottom:18px;text-shadow:0 0 6px rgba(255,255,255,.4)}
+#stage{position:relative;width:100%;height:calc(var(--cw)*1.5);perspective:1100px}
+.card{position:absolute;left:50%;top:0;width:var(--cw);height:100%;margin-left:calc(var(--cw)/-2);transform-style:preserve-3d;
+ transition:transform .7s cubic-bezier(.22,.8,.3,1),opacity .6s;cursor:pointer}
+.inner{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.4,.1,.2,1)}
+.card.flip .inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:8px;overflow:hidden}
+.front{background:#fff;padding:7px 7px 0;display:flex;flex-direction:column;box-shadow:0 8px 24px rgba(0,0,0,.6)}
+.front img{width:100%;flex:1;min-height:0;object-fit:cover;border-radius:3px;display:block;pointer-events:none}
+.front span{height:11%;display:flex;align-items:center;justify-content:center;color:#444;font-size:.8rem;font-weight:700}
+.back{transform:rotateY(180deg);background:#1a1014;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px #fff inset}
+.back::before{content:"";position:absolute;inset:-20%;filter:blur(18px);
+ background:radial-gradient(circle at 25% 20%,#f7b3d2 0 14%,transparent 42%),radial-gradient(circle at 80% 45%,#ffd2e8 0 16%,transparent 46%),radial-gradient(circle at 25% 85%,#f39ac4 0 15%,transparent 46%)}
+.back p{position:relative;width:78%;background:rgba(255,255,255,.93);color:#e0457b;border-radius:10px;padding:12px 8px;text-align:center;font-size:clamp(1rem,3.6vw,1.3rem);font-weight:700;line-height:1.15}
+.card:not(.active) .front::after,.card:not(.active) .back::after{content:"";position:absolute;inset:0;background:rgba(255,255,255,.22)}
+#nav{display:flex;align-items:center;gap:14px;margin-top:26px}
+#nav button{width:36px;height:36px;border-radius:50%;border:0;background:var(--dark);color:#fff;font-size:1.1rem;cursor:pointer;transition:.2s}
+#nav button:active{background:var(--pink);box-shadow:0 0 14px var(--pink);transform:scale(1.15)}
+#count2{font:700 .85rem 'Quicksand',sans-serif;min-width:48px;text-align:center}
+#music{position:fixed;right:12px;bottom:12px;z-index:60;width:38px;height:38px;border-radius:50%;border:0;background:rgba(179,15,90,.85);color:#fff;font-size:1.1rem;display:none}
+</style>
+</head>
+<body>
+
+<canvas id="fx"></canvas>
+
+<!-- ================= 🎵 MÚSICA: PON AQUÍ TU CANCIÓN ================= -->
+<!-- Coloca tu archivo junto a este HTML (ej: musica.mp3) y escribe el nombre en src -->
+<audio id="bgm" src="fotos/musica.mp3" loop preload="auto"></audio>
+<button id="music" title="Música">♪</button>
+
+<div id="intro">
+  <div id="giftWrap">
+    <div id="count">3</div>
+    <div id="baseBox" class="cube open" style="--w:84px;--h:78px"><div class="spin cube open" style="--w:84px;--h:78px;margin:0;position:absolute;left:0;top:0"><i class="f"></i><i class="b"></i><i class="r"></i><i class="l"></i><i class="d"></i></div></div>
+    <div id="lidBox" class="cube" style="--w:92px;--h:56px"><div class="spin cube" style="--w:92px;--h:56px;margin:0;position:absolute;left:0;top:0"><i class="f"></i><i class="b"></i><i class="r"></i><i class="l"></i><i class="t"></i><i class="d"></i></div></div>
+    <div id="heartPop">❤</div>
+  </div>
+  <h1 id="title">Happy Birthday My Love</h1>
+</div>
+
+<div id="gallery">
+  <div id="hint">Toca la foto principal</div>
+  <div id="stage"></div>
+  <div id="nav"><button id="prev">&#10094;</button><div id="count2">1 / 10</div><button id="next">&#10095;</button></div>
+</div>
+
+<script>
+/* ======================================================================
+   ✏️  CONFIGURACIÓN — EDITA SOLO ESTA PARTE
+   ====================================================================== */
+const TITULO = "Happy Birthday My Love";
+document.getElementById('title').textContent = TITULO;
+
+/* 📷 FOTOS Y MENSAJES  (10 tarjetas)
+   src   -> ruta de tu imagen (ej: "fotos/1.jpg") — déjala vacía "" para ver una imagen de ejemplo
+   texto -> mensaje que aparece al tocar la foto (se voltea la tarjeta)
+   Puedes agregar o quitar tarjetas; el contador se ajusta solo. */
+const FOTOS = [
+  { src:"fotos/foto1.jpg", texto:"Cuanto más tiempo estoy contigo, más te amo" },
+  { src:"fotos/foto2.jpg", texto:"Eres mi alegría, mi amor y mi todo todo por ti" },
+  { src:"fotos/foto3.jpg", texto:"hoy es tu dia y Contigo cada día es mi favorito" },
+  { src:"fotos/foto4.jpg", texto:"Gracias por ser la luz de mi vida quiero que seas tu amor" },
+  { src:"fotos/foto5.jpg", texto:"Tu sonrisa es mi lugar favorito tambien tus ojos" },
+  { src:"fotos/foto6.jpg", texto:"Eres mi persona favorita en el mundo te eleji a ti" },
+  { src:"fotos/foto7.jpg", texto:"Te elegiría en todas mis vidas porque te amo 3 millones" },
+  { src:"fotos/foto8.jpeg", texto:"Gracias por hacer mi vida tan especial a pesar de todos los problemas que tenemos" },
+  { src:"fotos/foto9.jpeg", texto:"Mi corazón es tuyo, siempre recuerdalo amor" },
+  { src:"fotos/foto10.jpeg", texto:"Feliz cumpleaños, mi amor. Te amo espero lo valores" }
+];
+const TEXTO_TARJETA = "Toca para leer";
+/* ====================================================================== */
+
+/* imagen de ejemplo cuando no hay foto */
+function placeholder(n){
+  const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='300' height='380'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#ff9ec8'/><stop offset='1' stop-color='#8e2a5e'/></linearGradient></defs><rect width='300' height='380' fill='url(#g)'/><text x='150' y='185' font-size='90' text-anchor='middle' fill='white'>❤</text><text x='150' y='250' font-size='26' font-family='sans-serif' text-anchor='middle' fill='white'>Tu foto ${n}</text></svg>`;
+  return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+}
+
+/* ---------- MÚSICA ---------- */
+const bgm=document.getElementById('bgm'), mBtn=document.getElementById('music');
+let musicaOn=false;
+function playMusic(){bgm.play().then(()=>{musicaOn=true;mBtn.textContent='♪';}).catch(()=>{});}
+if(bgm.getAttribute('src')){
+  mBtn.style.display='block';
+  playMusic();
+  const first=()=>{if(!musicaOn)playMusic();};
+  addEventListener('pointerdown',first,{once:true});
+  mBtn.onclick=e=>{e.stopPropagation();if(bgm.paused){playMusic();}else{bgm.pause();musicaOn=false;mBtn.textContent='✕';}};
+  bgm.onerror=()=>{mBtn.style.display='none';};
+}
+
+/* ---------- EFECTOS (confeti + corazones) ---------- */
+const cv=document.getElementById('fx'),cx=cv.getContext('2d');
+let W,H,parts=[],confeti=false;
+function fit(){const d=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*d;cv.height=H*d;cx.setTransform(d,0,0,d,0,0);}
+fit();addEventListener('resize',fit);
+const CONF=['#ff6fa8','#ff9cc4','#ffc0d9','#ff4f93'],HEART=['#ff2d55','#ff69b4','#ffb6c1','#ffffff','#ff4d6d','#ff8fb8'];
+const rnd=(a,b)=>a+Math.random()*(b-a);
+function heart(x,y,s,rot,col,a){cx.save();cx.translate(x,y);cx.rotate(rot);cx.scale(s/20,s/20);cx.globalAlpha=a;cx.fillStyle=col;cx.beginPath();cx.moveTo(0,10);cx.bezierCurveTo(-18,-2,-10,-16,0,-6);cx.bezierCurveTo(10,-16,18,-2,0,10);cx.fill();cx.restore();}
+function burst(x,y,n){for(let i=0;i<n;i++){const an=rnd(-Math.PI,0),v=rnd(80,320);parts.push({k:'h',x,y,vx:Math.cos(an)*v,vy:Math.sin(an)*v,s:rnd(10,24),r:rnd(-.6,.6),c:HEART[(Math.random()*HEART.length)|0],life:0,max:rnd(1.8,3)});}}
+function loop(t){
+  cx.clearRect(0,0,W,H);
+  if(confeti&&parts.filter(p=>p.k==='c').length<110&&Math.random()<.7)
+    parts.push({k:'c',x:rnd(0,W),y:-12,vy:rnd(50,120),sw:rnd(0,6.28),w:rnd(3,4.5),h:rnd(8,12),r:rnd(0,6.28),vr:rnd(-3,3),c:CONF[(Math.random()*4)|0]});
+  const dt=1/60;
+  parts=parts.filter(p=>{
+    if(p.k==='c'){p.y+=p.vy*dt;p.sw+=dt*2;p.x+=Math.sin(p.sw)*.5;p.r+=p.vr*dt;
+      cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.globalAlpha=.85;cx.fillStyle=p.c;cx.fillRect(-p.w/2,-p.h/2,p.w,p.h);cx.restore();return p.y<H+20;}
+    p.life+=dt;p.vy+=260*dt;p.vx*=.985;p.x+=p.vx*dt;p.y+=p.vy*dt;
+    heart(p.x,p.y,p.s,p.r+p.life*.5,p.c,Math.max(0,1-p.life/p.max));return p.life<p.max;
+  });
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+/* ---------- SECUENCIA DEL REGALO ---------- */
+const wrap=document.getElementById('giftWrap'),cnt=document.getElementById('count');
+let n=3;
+function tick(){
+  cnt.textContent=n;cnt.classList.remove('pop');void cnt.offsetWidth;cnt.classList.add('pop');
+  if(n>1){n--;setTimeout(tick,900);}
+  else setTimeout(()=>{
+    wrap.classList.add('opened');confeti=true;
+    setTimeout(()=>document.getElementById('title').classList.add('show'),700);
+    setTimeout(()=>cnt.classList.add('hide'),1800);
+    setTimeout(()=>{burst(W/2,H/2-20,55);burst(W/2,H/2-20,35);},2900);
+    setTimeout(()=>{document.getElementById('intro').classList.add('out');document.getElementById('gallery').classList.add('on');},3300);
+  },1000);
+}
+setTimeout(tick,700);
+
+/* ---------- CARRUSEL ---------- */
+const stage=document.getElementById('stage'),N=FOTOS.length;
+let cur=0;
+const cards=FOTOS.map((f,i)=>{
+  const c=document.createElement('div');c.className='card';
+  c.innerHTML=`<div class="inner"><div class="face front"><img alt="foto ${i+1}" src="${f.src||placeholder(i+1)}"><span>↻ ${TEXTO_TARJETA}</span></div><div class="face back"><p>${f.texto}</p></div></div>`;
+  c.querySelector('img').onerror=e=>{e.target.src=placeholder(i+1);};
+  c.onclick=()=>{
+    let d=i-cur;if(d>N/2)d-=N;if(d<-N/2)d+=N;
+    if(d===0){c.classList.toggle('flip');burst(W/2,H/2,10);}else go(d);
+  };
+  stage.appendChild(c);return c;
+});
+function render(){
+  const cw=cards[0].offsetWidth;
+  cards.forEach((c,i)=>{
+    let d=i-cur;if(d>N/2)d-=N;if(d<-N/2)d+=N;
+    const a=Math.abs(d),s=Math.sign(d);
+    c.classList.toggle('active',d===0);
+    if(d!==0)c.classList.remove('flip');
+    const x=a===0?0:s*(a===1?.62:1.14)*cw;
+    c.style.transform=`translateX(${x}px) translateZ(${-a*90}px) rotateY(${-s*(a?40:0)}deg)`;
+    c.style.zIndex=10-a;
+    c.style.opacity=a>2?0:1;
+    c.style.pointerEvents=a>2?'none':'auto';
+  });
+  document.getElementById('count2').textContent=(cur+1)+' / '+N;
+}
+function go(d,e){cur=(cur+d+N)%N;render();const r=(e&&e.currentTarget||document.getElementById('nav')).getBoundingClientRect();burst(r.left+r.width/2,r.top,14);}
+document.getElementById('prev').onclick=e=>go(-1,e);
+document.getElementById('next').onclick=e=>go(1,e);
+addEventListener('resize',render);
+render();
+
+/* deslizar con el dedo */
+let sx=null;
+const gal=document.getElementById('gallery');
+gal.addEventListener('pointerdown',e=>{sx=e.clientX;});
+gal.addEventListener('pointerup',e=>{if(sx===null)return;const dx=e.clientX-sx;sx=null;if(Math.abs(dx)>50)go(dx<0?1:-1);});
+addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(1);if(e.key==='ArrowLeft')go(-1);});
+</script>
+</body>
+</html>
